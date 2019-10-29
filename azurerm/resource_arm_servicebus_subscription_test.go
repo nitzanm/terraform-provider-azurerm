@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/helpers/tf"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/internal/features"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/utils"
@@ -287,6 +287,7 @@ func testAccAzureRMServiceBusSubscription_basic(rInt int, location string) strin
 
 func testAccAzureRMServiceBusSubscription_requiresImport(rInt int, location string) string {
 	return fmt.Sprintf(`
+
 %s 
 
 resource "azurerm_servicebus_subscription" "import" {

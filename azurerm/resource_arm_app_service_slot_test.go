@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/Azure/azure-sdk-for-go/services/web/mgmt/2018-02-01/web"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/helpers/tf"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/helpers/validate"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/internal/features"
@@ -1542,7 +1542,7 @@ func TestAccAzureRMAppServiceSlot_httpBlobStorageLogs(t *testing.T) {
 }
 
 func testCheckAzureRMAppServiceSlotDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*ArmClient).web.AppServicesClient
+	client := testAccProvider.Meta().(*ArmClient).Web.AppServicesClient
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "azurerm_app_service_slot" {
@@ -1583,7 +1583,7 @@ func testCheckAzureRMAppServiceSlotExists(slot string) resource.TestCheckFunc {
 			return fmt.Errorf("Bad: no resource group found in state for App Service Slot: %q/%q", appServiceName, slot)
 		}
 
-		client := testAccProvider.Meta().(*ArmClient).web.AppServicesClient
+		client := testAccProvider.Meta().(*ArmClient).Web.AppServicesClient
 		ctx := testAccProvider.Meta().(*ArmClient).StopContext
 		resp, err := client.GetSlot(ctx, resourceGroup, appServiceName, slot)
 		if err != nil {
@@ -2005,8 +2005,8 @@ resource "azurerm_app_service" "test" {
   location            = "${azurerm_resource_group.test.location}"
   resource_group_name = "${azurerm_resource_group.test.name}"
   app_service_plan_id = "${azurerm_app_service_plan.test.id}"
-  
-    site_config {
+
+  site_config {
     always_on = true
   }
 }
@@ -2080,7 +2080,7 @@ resource "azurerm_app_service_slot" "test" {
   auth_settings {
     enabled = true
     issuer  = "https://sts.windows.net/%s"
-          
+
     allowed_external_redirect_urls = [
       "https://terra.form"
     ]
@@ -2137,8 +2137,8 @@ resource "azurerm_app_service_slot" "test" {
   }
 
   auth_settings {
-    enabled = true
-    issuer  = "https://sts.windows.net/%s"
+    enabled         = true
+    issuer          = "https://sts.windows.net/%s"
     runtime_version = "1.0"
 
     active_directory {
@@ -2193,8 +2193,8 @@ resource "azurerm_app_service_slot" "test" {
   }
 
   auth_settings {
-    enabled = true
-    issuer  = "https://sts.windows.net/%s"
+    enabled                       = true
+    issuer                        = "https://sts.windows.net/%s"
     token_refresh_extension_hours = 75
 
     active_directory {
@@ -2243,14 +2243,14 @@ resource "azurerm_app_service_slot" "test" {
   resource_group_name = "${azurerm_resource_group.test.name}"
   app_service_plan_id = "${azurerm_app_service_plan.test.id}"
   app_service_name    = "${azurerm_app_service.test.name}"
-  
+
   site_config {
     always_on = true
   }
 
   auth_settings {
-    enabled = true
-    issuer  = "https://sts.windows.net/%s"
+    enabled             = true
+    issuer              = "https://sts.windows.net/%s"
     token_store_enabled = true
 
     active_directory {
@@ -2305,8 +2305,8 @@ resource "azurerm_app_service_slot" "test" {
   }
 
   auth_settings {
-    enabled = true
-    issuer  = "https://sts.windows.net/%s"
+    enabled                       = true
+    issuer                        = "https://sts.windows.net/%s"
     unauthenticated_client_action = "RedirectToLoginPage"
 
     active_directory {
@@ -2576,8 +2576,8 @@ resource "azurerm_app_service_slot" "test" {
   auth_settings {
     enabled = true
     twitter {
-      consumer_key     = "twitterconsumerkey"
-      consumer_secret  = "twitterconsumersecret"
+      consumer_key    = "twitterconsumerkey"
+      consumer_secret = "twitterconsumersecret"
     }
   }
 }
@@ -2635,7 +2635,7 @@ resource "azurerm_app_service_slot" "test" {
         "activedirectorytokenaudiences",
       ]
     }
-    
+
     microsoft {
       client_id     = "microsoftclientid"
       client_secret = "microsoftclientsecret"

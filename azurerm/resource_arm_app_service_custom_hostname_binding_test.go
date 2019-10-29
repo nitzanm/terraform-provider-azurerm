@@ -6,8 +6,8 @@ import (
 
 	"os"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/helpers/tf"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/internal/features"
 	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/utils"
@@ -159,7 +159,7 @@ func testAccAzureRMAppServiceCustomHostnameBinding_ssl(t *testing.T, appServiceE
 }
 
 func testCheckAzureRMAppServiceCustomHostnameBindingDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*ArmClient).web.AppServicesClient
+	client := testAccProvider.Meta().(*ArmClient).Web.AppServicesClient
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "azurerm_app_service_custom_hostname_binding" {
@@ -198,7 +198,7 @@ func testCheckAzureRMAppServiceCustomHostnameBindingExists(resourceName string) 
 		appServiceName := rs.Primary.Attributes["app_service_name"]
 		hostname := rs.Primary.Attributes["hostname"]
 
-		client := testAccProvider.Meta().(*ArmClient).web.AppServicesClient
+		client := testAccProvider.Meta().(*ArmClient).Web.AppServicesClient
 		ctx := testAccProvider.Meta().(*ArmClient).StopContext
 		resp, err := client.GetHostNameBinding(ctx, resourceGroup, appServiceName, hostname)
 		if err != nil {

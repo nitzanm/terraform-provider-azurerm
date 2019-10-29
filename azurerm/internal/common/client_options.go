@@ -10,7 +10,8 @@ import (
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/hashicorp/go-azure-helpers/sender"
-	"github.com/hashicorp/terraform/httpclient"
+	"github.com/hashicorp/terraform-plugin-sdk/httpclient"
+	"github.com/terraform-providers/terraform-provider-azurerm/azurerm/internal/features"
 	"github.com/terraform-providers/terraform-provider-azurerm/version"
 )
 
@@ -27,10 +28,12 @@ type ClientOptions struct {
 	ResourceManagerEndpoint   string
 	StorageAuthorizer         autorest.Authorizer
 
-	PollingDuration             time.Duration
 	SkipProviderReg             bool
 	DisableCorrelationRequestID bool
 	Environment                 azure.Environment
+
+	// TODO: remove me in 2.0
+	PollingDuration time.Duration
 }
 
 func (o ClientOptions) ConfigureClient(c *autorest.Client, authorizer autorest.Authorizer) {
@@ -38,10 +41,14 @@ func (o ClientOptions) ConfigureClient(c *autorest.Client, authorizer autorest.A
 
 	c.Authorizer = authorizer
 	c.Sender = sender.BuildSender("AzureRM")
-	c.PollingDuration = o.PollingDuration
 	c.SkipResourceProviderRegistration = o.SkipProviderReg
 	if !o.DisableCorrelationRequestID {
 		c.RequestInspector = WithCorrelationRequestID(CorrelationRequestID())
+	}
+
+	// TODO: remove in 2.0
+	if !features.SupportsCustomTimeouts() {
+		c.PollingDuration = o.PollingDuration
 	}
 }
 
@@ -56,9 +63,13 @@ func setUserAgent(client *autorest.Client, tfVersion, partnerID string) {
 		client.UserAgent = fmt.Sprintf("%s %s", client.UserAgent, azureAgent)
 	}
 
-	if partnerID != "" {
-		client.UserAgent = fmt.Sprintf("%s pid-%s", client.UserAgent, partnerID)
+	// only one pid can be interpreted currently
+	// hence, send partner ID if present, otherrwise send Terraform GUID
+	if partnerID == "" {
+		// Microsoft’s Terraform Partner ID is this specific GUID
+		partnerID = "222c6c49-1b0a-5959-a213-6608f9eb8820"
 	}
+	client.UserAgent = fmt.Sprintf("%s pid-%s", client.UserAgent, partnerID)
 
 	log.Printf("[DEBUG] AzureRM Client User Agent: %s\n", client.UserAgent)
 }

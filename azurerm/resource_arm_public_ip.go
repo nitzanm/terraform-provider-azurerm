@@ -331,7 +331,26 @@ func resourceArmPublicIpDelete(d *schema.ResourceData, meta interface{}) error {
 	resGroup := id.ResourceGroup
 	name := id.Path["publicIPAddresses"]
 
-	future, err := client.Delete(ctx, resGroup, name)
+	// Temporary workaround: try to delete the IP multiple times, waiting progressively longer in between,
+	// if the deletion returns an error that the IP is in use.  This is a workaround for
+	// https://github.com/hashicorp/terraform/issues/23169
+	var retryTimes = [5]int{0, 5, 10, 30, 60}
+	var future network.PublicIPAddressesDeleteFuture
+	for i, waitTime := range retryTimes {
+		if i > 0 {
+			log.Printf("[INFO] Try #%d to delete public IP, waiting %d seconds.", i, waitTime)
+		}
+		if waitTime > 0 {
+			time.Sleep(time.Duration(waitTime) * time.Second)
+		}
+		future, err = client.Delete(ctx, resGroup, name)
+		if err == nil {
+			break
+		} else if strings.Contains(err.Error(), "can not be deleted since it is still allocated to resource") {
+			log.Printf("[INFO] Error deleting Public IP %q (Resource Group %q): %+v", name, resGroup, err)
+		}
+	}
+
 	if err != nil {
 		return fmt.Errorf("Error deleting Public IP %q (Resource Group %q): %+v", name, resGroup, err)
 	}
